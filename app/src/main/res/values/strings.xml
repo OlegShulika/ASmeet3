@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ASmeet3</string>
+    <string name="start_service_text">Start Service</string>
+    <string name="bound_service_text">Bound Service</string>
+    <string name="srv_data_label">Data from Service</string>
+    <string name="stop_service_text">Stop Service</string>
+    <string name="text_from_service">...something from service... </string>
+</resources>
