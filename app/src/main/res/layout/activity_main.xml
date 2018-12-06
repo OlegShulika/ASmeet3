@@ -23,11 +23,11 @@
             android:text="@string/start_service_text" />
 
         <Button
-            android:id="@+id/button_bound_srv"
+            android:id="@+id/button_bind_srv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/button_margin"
-            android:text="@string/bound_service_text" />
+            android:text="@string/bind_service_text" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
