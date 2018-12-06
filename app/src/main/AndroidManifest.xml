@@ -30,9 +30,6 @@
         <activity android:name=".ServiceActivity" />
 
         <service
-            android:name=".SomeMsgIntentService"
-            android:exported="false"></service>
-        <service
             android:name=".TestMsgService"
             android:enabled="true"
             android:exported="true"></service>
