@@ -83,15 +83,16 @@ public class TestMsgService extends Service {
                 int workTime=SERVICE_WORKTIME_LIMIT;
                 while (--workTime>0 && isServiceStarted()){
                     try {
+                        Thread.sleep(1000);             // wait 1 sec
                         setCurrentMsg("msg"+System.currentTimeMillis());
                         Log.d(TAG,"==>"+getCurrentMsg());
                         if (handlerMsg!=null) {
                             Message msg = new Message();
                             handlerMsg.handleMessage(msg);
                         }
-                        Thread.sleep(1000);             // wait 1 sec
-                    } catch (Exception ex)
-                    {}
+                    } catch (Exception ex){
+                        Log.d(TAG,ex.getMessage());
+                    }
                 }
                 stopSelf(startId);
                 setServiceStarted(false);
@@ -124,12 +125,20 @@ public class TestMsgService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, " onBind");
+        if (!isServiceStarted()) {
+            setServiceStarted(true);
+            startSrv(0);
+        }
         return mBinder;
     }
 
     @Override
     public void onRebind(Intent intent) {
         Log.d(TAG, " onRebind");
+        if (!isServiceStarted()) {
+            setServiceStarted(true);
+            startSrv(0);
+        }
         super.onRebind(intent);
     }
 
@@ -142,6 +151,8 @@ public class TestMsgService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, " onDestroy");
+        stopSelf();
+        setServiceStarted(false);
         super.onDestroy();
     }
 

@@ -42,7 +42,8 @@ public class ServiceActivity extends AppCompatActivity {
     private class LocalHandler extends Handler{
         @Override
         public void handleMessage(Message msg) {
-            mServiceDataReceived.append(" "+mBoundService.getCurrentMsg());
+            if (mBoundService!=null)
+                mServiceDataReceived.append(" "+mBoundService.getCurrentMsg());
             super.handleMessage(msg);
         }
     }
@@ -72,7 +73,9 @@ public class ServiceActivity extends AppCompatActivity {
         mStopServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                unbindTestMsgService();
+                Log.d(TAG, "stop TestMsgService");
+                startService(TestMsgService.newIntent(ServiceActivity.this, Command.STOP));
+                mServiceStat.setText(getString(R.string.srv_data_label)+"-disconnected");
             }
         });
 
@@ -90,17 +93,25 @@ public class ServiceActivity extends AppCompatActivity {
     public void unbindTestMsgService() {
         if (isServiceBound()) {
             unbindService(mServiceConnection);
+            mBoundService = null;
+            mServiceStat.setText(getString(R.string.srv_data_label)+"-disconnected");
             Log.d(TAG, "unbinding TestMsgService...");
 
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, " onBackPressed - UNBIND");
+        unbindTestMsgService();
+        super.onBackPressed();
+    }
 
     @Override
     protected void onResume() {
-        super.onResume();
         Log.d(TAG, " onResume");
         bindTestMsgService();
+        super.onResume();
     }
 
     @Override
