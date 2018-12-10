@@ -2,7 +2,7 @@
     <string name="app_name">ASmeet3</string>
     <string name="start_service_text">Start Service</string>
     <string name="bind_service_text">Bind Service</string>
-    <string name="srv_data_label">Data from Service</string>
+    <string name="srv_data_label">TestMsgService</string>
     <string name="stop_service_text">Stop Service</string>
     <string name="text_from_service">...something from service... </string>
 </resources>

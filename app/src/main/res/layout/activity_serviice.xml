@@ -15,6 +15,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/srv_stat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/srv_data_label" />
@@ -24,7 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/srv_data_height"
             android:gravity="top"
-            android:text="@string/text_from_service"/>
+            android:inputType="none"
+            android:text="@string/text_from_service" />
 
     </LinearLayout>
 

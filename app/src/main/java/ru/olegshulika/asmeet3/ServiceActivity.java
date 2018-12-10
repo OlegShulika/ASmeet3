@@ -2,34 +2,54 @@ package ru.olegshulika.asmeet3;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class ServiceActivity extends AppCompatActivity {
     private static final String TAG = "2_ServiceAct";
+    private TextView mServiceStat;
     private EditText mServiceDataReceived;
     private Button mStopServiceButton;
-    private TestMsgService mBoundService;
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
+    private Handler mHandler = new LocalHandler();
+    private TestMsgService mBoundService=null;
+    private ServiceConnection mServiceConnection = new ServiceConnection()  {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mBoundService = ((TestMsgService.LocalBinder)service).getService();
-            Log.d(TAG, "ServiceActivity connected");
+            ((TestMsgService.LocalBinder)service).setHandler(mHandler);
+            mServiceStat.setText(getString(R.string.srv_data_label)+"-CONNECTED");
+            mServiceDataReceived.append(">>"+mBoundService.getCurrentMsg());
+            Log.d(TAG, "TestMsgService connected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "ServiceActivity disconnected");
+            mBoundService=null;
+            mServiceStat.setText(getString(R.string.srv_data_label)+"-disconnected");
+            Log.d(TAG, "TestMsgService disconnected");
         }
     };
 
+    private class LocalHandler extends Handler{
+        @Override
+        public void handleMessage(Message msg) {
+            mServiceDataReceived.append(" "+mBoundService.getCurrentMsg());
+            super.handleMessage(msg);
+        }
+    }
+
+    protected boolean isServiceBound() {
+        return mBoundService!=null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +57,13 @@ public class ServiceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_serviice);
         initViews();
         initListeners();
-        Log.d(TAG, this.getLocalClassName()+" onCreate");
+        Log.d(TAG, " onCreate");
     }
 
     void initViews(){
         mServiceDataReceived = findViewById(R.id.srv_data_received);
         mStopServiceButton = findViewById(R.id.button_stop_srv);
+        mServiceStat = findViewById(R.id.srv_stat);
         mServiceDataReceived.setText("");
         this.setTitle(getString(R.string.app_name)+" "+getString(R.string.bind_service_text));
     }
@@ -51,42 +72,60 @@ public class ServiceActivity extends AppCompatActivity {
         mStopServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "unbind TestMsgService");
-                unbindService();
+                unbindTestMsgService();
             }
         });
 
+
     }
 
-
-    private void init() {
-        bindService();
+    public void bindTestMsgService() {
+        if (!isServiceBound()) {
+            Log.d(TAG, "binding TestMsgService...");
+            bindService(TestMsgService.newIntent(ServiceActivity.this),
+                    mServiceConnection, Context.BIND_AUTO_CREATE);
+        }
     }
+
+    public void unbindTestMsgService() {
+        if (isServiceBound()) {
+            unbindService(mServiceConnection);
+            Log.d(TAG, "unbinding TestMsgService...");
+
+        }
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, this.getLocalClassName()+" onResume");
-        bindService();
+        Log.d(TAG, " onResume");
+        bindTestMsgService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, this.getLocalClassName()+" onPause");
-        unbindService();
+        Log.d(TAG, " onPause");
+        unbindTestMsgService();
     }
 
-
-    public void bindService() {
-        bindService(TestMsgService.newIntent(ServiceActivity.this), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, " onStart");
     }
 
-
-    public void unbindService() {
-        unbindService(mServiceConnection);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, " onStop");
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, " onDestroy");
+    }
 
 }
