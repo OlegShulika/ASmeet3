@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Handler;
@@ -20,6 +21,7 @@ public class ServiceActivity extends AppCompatActivity {
     private EditText mServiceDataReceived;
     private Button mStopServiceButton;
     private Handler mHandler = new LocalHandler();
+    private Looper mLooper;
     private TestMsgService mBoundService=null;
     private ServiceConnection mServiceConnection = new ServiceConnection()  {
         @Override
@@ -27,7 +29,6 @@ public class ServiceActivity extends AppCompatActivity {
             mBoundService = ((TestMsgService.LocalBinder)service).getService();
             ((TestMsgService.LocalBinder)service).setHandler(mHandler);
             mServiceStat.setText(getString(R.string.srv_data_label)+"-CONNECTED");
-            mServiceDataReceived.append(">>"+mBoundService.getCurrentMsg());
             Log.d(TAG, "TestMsgService connected");
         }
 
@@ -43,7 +44,7 @@ public class ServiceActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             if (mBoundService!=null)
-                mServiceDataReceived.append(" "+mBoundService.getCurrentMsg());
+                mServiceDataReceived.append(" "+msg.obj);
             super.handleMessage(msg);
         }
     }
@@ -55,6 +56,7 @@ public class ServiceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLooper = Looper.getMainLooper();
         setContentView(R.layout.activity_serviice);
         initViews();
         initListeners();

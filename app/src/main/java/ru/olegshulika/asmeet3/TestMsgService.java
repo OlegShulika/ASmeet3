@@ -25,22 +25,13 @@ public class TestMsgService extends Service {
     private IBinder mBinder = new LocalBinder();
     private Handler handlerMsg = null;
     private boolean serviceStarted = false;
-    private String currentMsg = "";
 
-    synchronized public boolean isServiceStarted() {
+    private boolean isServiceStarted() {
         return serviceStarted;
     }
 
-    synchronized public void setServiceStarted(boolean serviceStarted) {
+    private void setServiceStarted(boolean serviceStarted) {
         this.serviceStarted = serviceStarted;
-    }
-
-    synchronized public String getCurrentMsg() {
-        return currentMsg;
-    }
-
-    synchronized public void setCurrentMsg(String currentMsg) {
-        this.currentMsg = currentMsg;
     }
 
     public class LocalBinder extends Binder {
@@ -84,11 +75,11 @@ public class TestMsgService extends Service {
                 while (--workTime>0 && isServiceStarted()){
                     try {
                         Thread.sleep(1000);             // wait 1 sec
-                        setCurrentMsg("msg"+System.currentTimeMillis());
-                        Log.d(TAG,"==>"+getCurrentMsg());
+                        String strMsg = "msg"+System.currentTimeMillis();
+                        Log.d(TAG,"==>"+strMsg);
                         if (handlerMsg!=null) {
-                            Message msg = new Message();
-                            handlerMsg.handleMessage(msg);
+                            Message msg = handlerMsg.obtainMessage(0, strMsg);
+                            handlerMsg.sendMessage(msg);
                         }
                     } catch (Exception ex){
                         Log.d(TAG,ex.getMessage());
